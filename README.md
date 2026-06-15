@@ -78,7 +78,7 @@ This project was developed to demonstrate backend and frontend development skill
 ![Database Diagram](assets/entity-relationship-diagram.png)
 
 ## Project Structure
-
+```
 backend
 │
 ├── controller
@@ -97,7 +97,7 @@ frontend
 ├── services
 ├── routes
 └── hooks
-
+```
 ## API Endpoints
 
 Authentication:
