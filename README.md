@@ -47,7 +47,7 @@ This project was developed to demonstrate backend and frontend development skill
 
 ## Technology Stack
 
-BackEnd:
+### Backend
 
 - Java 21
 - Spring Boot
@@ -57,18 +57,18 @@ BackEnd:
 - JWT
 - Maven
 
-FrontEnd:
+### Frontend
 
 - React
 - React Router
 - Axios
 - Bootstrap
 
-Database:
+### Database
 
 - PostgreSQL
 
-Infrastructure:
+### Infrastructure
 
 - Docker
 - Docker Compose
@@ -119,10 +119,44 @@ POST /api/tasks
 PUT /api/tasks/{id}
 DELETE /api/tasks/{id}
 
+## Prerequisites
+
+- Java 21
+- Maven
+- Docker
+- Docker Compose
+- PostgreSQL
+
 ## Running the Application
 
 git clone https://github.com/Mahdi-Farhat/task-management-system.git
 docker-compose up
+
+## Design Principles
+
+This application follows:
+
+- Layered Architecture
+- SOLID Principles
+- Dependency Injection
+- Repository Pattern
+- Service Layer Pattern
+- DTO Pattern
+- Global Exception Handling
+
+## Purpose
+
+This project was created to simulate a real-world task management platform while applying professional backend and frontend development practices.
+
+The goal is to gain hands-on experience with:
+
+- Spring Boot
+- React
+- PostgreSQL
+- JWT Authentication
+- Docker
+- REST API Design
+- Software Architecture
 
 ## Learning Objectives
 
