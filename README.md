@@ -1,3 +1,3 @@
 ##System Architecture
 
-![System Architecture](assets/layered-structure.png)
+![System Architecture](assets/Layered%20Structure.png)
