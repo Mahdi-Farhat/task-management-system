@@ -8,8 +8,6 @@ The system allows users to create projects, manage tasks, assign responsibilitie
 
 This project was developed to demonstrate backend and frontend development skills, software architecture principles, authentication and authorization, database design, and containerization.
 
-
-
 ## System Architecture
 
 ![System Architecture](assets/layered-structure.png)
