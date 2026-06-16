@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/task-management-db
+    username: postgres
+    password: Rootroot
+
+  jpa:
+    hibernate:
+      ddl-auto: update
