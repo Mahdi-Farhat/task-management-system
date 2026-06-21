@@ -1,5 +1,8 @@
 package com.mahdifarhat.taskmanagementssystem.controller;
 
+import com.mahdifarhat.taskmanagementssystem.dto.task.CreateTaskDTO;
+import com.mahdifarhat.taskmanagementssystem.dto.task.TaskResponseDTO;
+import com.mahdifarhat.taskmanagementssystem.dto.task.UpdateTaskDTO;
 import com.mahdifarhat.taskmanagementssystem.entity.Task;
 import com.mahdifarhat.taskmanagementssystem.service.TaskService;
 import jakarta.validation.Valid;
@@ -22,23 +25,23 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
+    public List<TaskResponseDTO> getAllTasks() {
         return taskService.getAllTasks();
     }
 
     @GetMapping("/{id}")
-    public Task getTaskById(@PathVariable Long id) {
+    public TaskResponseDTO getTaskById(@PathVariable Long id) {
         return taskService.getTaskById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
-        Task newTask = taskService.createTask(task);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newTask);
+    public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody CreateTaskDTO task) {
+        TaskResponseDTO savedTask = taskService.createTask(task);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id,@Valid @RequestBody Task updatedTask) {
+    public TaskResponseDTO updateTask(@PathVariable Long id,@Valid @RequestBody UpdateTaskDTO updatedTask) {
         return taskService.updateTask(id, updatedTask);
     }
 
@@ -49,17 +52,17 @@ public class TaskController {
     }
 
     @GetMapping("/completed/{status}")
-    public List<Task> getTasksByCompletionStatus(@PathVariable boolean status) {
+    public List<TaskResponseDTO> getTasksByCompletionStatus(@PathVariable boolean status) {
         return taskService.getTasksByCompletionStatus(status);
     }
 
     @GetMapping("/search")
-    public List<Task> getTasksByTitle(@RequestParam String title) {
+    public List<TaskResponseDTO> getTasksByTitle(@RequestParam String title) {
         return taskService.getTasksByTitle(title);
     }
 
     @GetMapping("/completed/second/{status}")
-    public List<Task> getTasksByStatus(@PathVariable boolean status) {
+    public List<TaskResponseDTO> getTasksByStatus(@PathVariable boolean status) {
         return taskService.getTasksByStatus(status);
     }
 

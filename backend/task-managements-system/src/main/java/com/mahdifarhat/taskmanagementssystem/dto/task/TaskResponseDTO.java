@@ -1,5 +1,16 @@
 package com.mahdifarhat.taskmanagementssystem.dto.task;
 
-public record TaskResponseDTO() {
+import lombok.Builder;
+
+import java.time.OffsetDateTime;
+
+@Builder
+public record TaskResponseDTO(
+        Long id,
+        String title,
+        String description,
+        Boolean status,
+        OffsetDateTime due_date
+) {
 
 }

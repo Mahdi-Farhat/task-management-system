@@ -1,44 +1,57 @@
 package com.mahdifarhat.taskmanagementssystem.service;
 
+import com.mahdifarhat.taskmanagementssystem.dto.task.CreateTaskDTO;
+import com.mahdifarhat.taskmanagementssystem.dto.task.TaskResponseDTO;
+import com.mahdifarhat.taskmanagementssystem.dto.task.UpdateTaskDTO;
 import com.mahdifarhat.taskmanagementssystem.entity.Task;
 import com.mahdifarhat.taskmanagementssystem.exception.TaskNotFoundException;
+import com.mahdifarhat.taskmanagementssystem.mapper.TaskMapper;
 import com.mahdifarhat.taskmanagementssystem.repository.TaskRepository;
 import jakarta.transaction.Transactional;
+import org.hibernate.sql.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
+
         this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
     }
 
-    public List<Task> getAllTasks(){
-        return taskRepository.findAll();
+    public List<TaskResponseDTO> getAllTasks(){
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream()
+                .map(taskMapper::toTaskResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public Task getTaskById(Long id){
-        return taskRepository.findById(id)
+    public TaskResponseDTO getTaskById(Long id){
+        Task entityTask = taskRepository.findById(id)
                 .orElseThrow(()-> new TaskNotFoundException(id));
+        return taskMapper.toTaskResponseDTO(entityTask);
     }
 
-    public Task createTask(Task task){
-        return taskRepository.save(task);
+    public TaskResponseDTO createTask(CreateTaskDTO task){
+        Task entityTask = taskMapper.toEntity(task);
+        Task savedTask = taskRepository.save(entityTask);
+        return taskMapper.toTaskResponseDTO(savedTask);
     }
 
-    public Task updateTask(Long id, Task updatedTask){
-        Task task = taskRepository.findById(id)
+    public TaskResponseDTO updateTask(Long id, UpdateTaskDTO updatedTask){
+        Task entityTask = taskRepository.findById(id)
                 .orElseThrow(()-> new TaskNotFoundException(id));
-        task.setTitle(updatedTask.getTitle());
-        task.setDescription(updatedTask.getDescription());
-        task.setPriority(updatedTask.getPriority());
-        task.setStatus(updatedTask.getStatus());
-        return taskRepository.save(task);
+        taskMapper.updateEntityFromReUpdateTaskDTO(entityTask, updatedTask);
+        Task savedTask = taskRepository.save(entityTask);
+        return taskMapper.toTaskResponseDTO(savedTask);
     }
 
     public void deleteTask(Long id) {
@@ -47,16 +60,25 @@ public class TaskService {
         taskRepository.delete(task);
     }
 
-    public List<Task> getTasksByCompletionStatus(boolean status) {
-        return taskRepository.findByStatus(true);
+    public List<TaskResponseDTO> getTasksByCompletionStatus(boolean status) {
+        return taskRepository.findByStatus(status)
+                .stream()
+                .map(taskMapper::toTaskResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<Task> getTasksByTitle(String title) {
-        return taskRepository.findByTitleIgnoreCaseContaining(title);
+    public List<TaskResponseDTO> getTasksByTitle(String title) {
+        return taskRepository.findByTitleIgnoreCaseContaining(title)
+                .stream()
+                .map(taskMapper::toTaskResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<Task> getTasksByStatus(boolean status) {
-        return taskRepository.findTasksByCompletionStatus(status);
+    public List<TaskResponseDTO> getTasksByStatus(boolean status) {
+        return taskRepository.findTasksByCompletionStatus(status)
+                .stream()
+                .map(taskMapper::toTaskResponseDTO)
+                .collect(Collectors.toList());
     }
 
 
