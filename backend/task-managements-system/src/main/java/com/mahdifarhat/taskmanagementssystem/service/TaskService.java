@@ -18,13 +18,26 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class TaskService {
+
+    //Dependencies
+
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
 
-    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
+    //----------------------------------------------------------------------------------------
+    //Constructor
 
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
         this.taskMapper = taskMapper;
+    }
+
+    //----------------------------------------------------------------------------------------
+    //CRUD Operations
+
+    public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
+        Page<Task> pages = taskRepository.findAll(pageable);
+        return pages.map(taskMapper::toTaskResponseDTO);
     }
 
     public List<TaskResponseDTO> getAllTasks(){
@@ -32,11 +45,6 @@ public class TaskService {
         return tasks.stream()
                 .map(taskMapper::toTaskResponseDTO)
                 .collect(Collectors.toList());
-    }
-
-    public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
-        Page<Task> pages = taskRepository.findAll(pageable);
-        return pages.map(taskMapper::toTaskResponseDTO);
     }
 
     public TaskResponseDTO getTaskById(Long id){
@@ -65,23 +73,17 @@ public class TaskService {
         taskRepository.delete(task);
     }
 
-    public List<TaskResponseDTO> getTasksByCompletionStatus(boolean status) {
-        final List<Task> completedTasks = taskRepository.findByStatus(status);
-        return completedTasks.stream()
-                .map(taskMapper::toTaskResponseDTO)
-                .collect(Collectors.toList());
-    }
+    //----------------------------------------------------------------------------------------
+    //Search & Filtering
 
     public Page<TaskResponseDTO> getTasksByCompletionStatus(boolean status, Pageable pageable) {
         final Page<Task> completedTasks = taskRepository.findByStatus(status, pageable);
         return completedTasks.map(taskMapper::toTaskResponseDTO);
     }
 
-    public List<TaskResponseDTO> getTasksByTitle(String title) {
-        return taskRepository.findByTitleContainingIgnoreCase(title)
-                .stream()
-                .map(taskMapper::toTaskResponseDTO)
-                .collect(Collectors.toList());
+    public List<TaskResponseDTO> getTasksByCompletionStatus(boolean status) {
+        final List<Task> completedTasks = taskRepository.findByStatus(status);
+        return mapToTaskResponseDTO(completedTasks);
     }
 
     public Page<TaskResponseDTO> getTasksByTitle(String title, Pageable pageable) {
@@ -89,14 +91,49 @@ public class TaskService {
         return tasksByTitle.map(taskMapper::toTaskResponseDTO);
     }
 
+    public List<TaskResponseDTO> getTasksByTitle(String title) {
+        return mapToTaskResponseDTO(taskRepository.findByTitleContainingIgnoreCase(title));
+    }
+
     public List<TaskResponseDTO> getTasksByStatus(boolean status) {
-        return taskRepository.findTasksByCompletionStatus(status)
-                .stream()
+        return mapToTaskResponseDTO(taskRepository.findTasksByCompletionStatus(status));
+    }
+
+    public Page<TaskResponseDTO> searchTasksByTitleAndStatus(String title,Boolean status, Pageable pageable) {
+        final Page<Task> tasksByTitleAndStatus = taskRepository.findByTitleAndStatus(title, status, pageable);
+        return tasksByTitleAndStatus.map(taskMapper::toTaskResponseDTO);
+    }
+
+    //----------------------------------------------------------------------------------------
+    //Private Helpers
+
+    private List<TaskResponseDTO> mapToTaskResponseDTO(List<Task> tasks){
+        return tasks.stream()
                 .map(taskMapper::toTaskResponseDTO)
                 .collect(Collectors.toList());
     }
 
-
-
-
+//  Dependencies
+//--------------------
+//  Constructor
+//--------------------
+//  CRUD Operations
+//              getAll
+//              getById
+//              create
+//              update
+//              delete
+//---------------------
+//  Business Operations
+//              assignTask
+//              changeStatus
+//              addComment
+//              markNotificationAsRead
+//----------------------
+//  Search & Filtering
+//              findByTitle
+//              findByStatus
+//              searchByTitleAndStatus
+//-----------------------
+//    Private Helpers
 }

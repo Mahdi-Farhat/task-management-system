@@ -22,23 +22,22 @@ import java.util.Map;
 @RequestMapping("/api/v1/task")    //Base URL for all endpoints, localhost:8080/api/v1/tasks/...
 public class TaskController {
 
-    private final TaskService taskService;
+    //---------------------------------------------------------------------------------------------
     //Constructor Injection
+    private final TaskService taskService;
+
     @Autowired
     public TaskController(TaskService taskService) {
         this.taskService= taskService;
     }
-
-    @GetMapping
-    public List<TaskResponseDTO> getAllTasks() {
-        return taskService.getAllTasks();
-    }
+    //---------------------------------------------------------------------------------------------
+    //CRUD Endpoints
 
     @GetMapping("/page")
     public ResponseEntity<Map<String, Object>> getAllTasks(@RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size,
-                                           @RequestParam(defaultValue = "title") String sortBy,
-                                           @RequestParam(defaultValue = "DESC")  String sortDir) {
+                                                           @RequestParam(defaultValue = "10") int size,
+                                                           @RequestParam(defaultValue = "title") String sortBy,
+                                                           @RequestParam(defaultValue = "DESC")  String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("ASC") ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -53,6 +52,11 @@ public class TaskController {
         response.put("hasNext", taskPage.hasNext());
 
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @GetMapping
+    public List<TaskResponseDTO> getAllTasks() {
+        return taskService.getAllTasks();
     }
 
     @GetMapping("/{id}")
@@ -77,16 +81,58 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/completed/{status}")
+    //---------------------------------------------------------------------------------------------
+    //Search & Filtering Endpoints
+
+    @GetMapping("/page/search")
+    public ResponseEntity<Map<String, Object>> searchTasks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sortBy,
+            @RequestParam(defaultValue = "DESC")  String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("ASC") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<TaskResponseDTO> taskPage;
+        if(title != null && status != null) {
+            //Filter by both
+            taskPage = taskService.searchTasksByTitleAndStatus(title, status, pageable);
+        }
+        else if(title != null) {
+            //Filter by title only
+            taskPage = taskService.getTasksByTitle(title, pageable);
+        }
+        else  if(status != null) {
+            taskPage = taskService.getTasksByCompletionStatus(status, pageable);
+        }
+        else {
+            taskPage = taskService.getAllTasks(pageable);
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("tasks", taskPage.getContent());
+        response.put("currentPage", taskPage.getNumber());
+        response.put("totalItems", taskPage.getTotalElements());
+        response.put("totalPages", taskPage.getTotalPages());
+        response.put("sortBy", sortBy);
+        response.put("hasPreviousPage", taskPage.hasPrevious());
+        response.put("hasNext", taskPage.hasNext());
+
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @GetMapping("/status/{status}")
     public List<TaskResponseDTO> getTasksByCompletionStatus(@PathVariable boolean status) {
         return taskService.getTasksByCompletionStatus(status);
     }
 
-    @GetMapping("/completed/page/{status}")
+    @GetMapping("/page/status/{status}")
     public ResponseEntity<Map<String, Object>> getTasksByCompletionStatus(@PathVariable boolean status,
-                                                            @RequestParam(defaultValue = "0") int page,
-                                                            @RequestParam(defaultValue = "10") int size,
-                                                            @RequestParam(defaultValue = "id") String sortBy) {
+                                                                          @RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size,
+                                                                          @RequestParam(defaultValue = "id") String sortBy) {
         Sort sort = sortBy.equalsIgnoreCase("ASC") ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -102,22 +148,22 @@ public class TaskController {
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
-    @GetMapping("/completed/second/{status}")
-    public List<TaskResponseDTO> getTasksByStatus(@PathVariable boolean status) {
-        return taskService.getTasksByStatus(status);
-    }
+//    @GetMapping("/status/{status}")
+//    public List<TaskResponseDTO> getTasksByStatus(@PathVariable boolean status) {
+//        return taskService.getTasksByStatus(status);
+//    }
 
-    @GetMapping("/search")
+    @GetMapping("/search-by-title")
     public List<TaskResponseDTO> getTasksByTitle(@RequestParam String title) {
         return taskService.getTasksByTitle(title);
     }
 
-    @GetMapping("/page/search")
+    @GetMapping("/page/search-by-title")
     public ResponseEntity<Map<String, Object>> getTasksByTitle(@RequestParam String title,
-                                                 @RequestParam(defaultValue = "0") int page,
-                                                 @RequestParam(defaultValue = "10") int size,
-                                                 @RequestParam(defaultValue = "id") String sortBy,
-                                                 @RequestParam(defaultValue = "DESC")  String sortDir) {
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size,
+                                                               @RequestParam(defaultValue = "id") String sortBy,
+                                                               @RequestParam(defaultValue = "DESC")  String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("ASC") ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -132,8 +178,47 @@ public class TaskController {
         response.put("hasNext", tasksCompleted.hasNext());
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+    //---------------------------------------------------------------------------------------------
+    //Business Operations Endpoints
+
+    //---------------------------------------------------------------------------------------------
+    //Statistics Endpoints
+
+    //---------------------------------------------------------------------------------------------
+    //Private Helpers
 
 
-
+// =====================================================
+//
+// Dependencies
+//
+// =====================================================
+//
+// Constructor
+//
+// =====================================================
+//
+// CRUD Endpoints
+//
+// =====================================================
+// =====================================================
+//
+// Search & Filtering Endpoints
+//
+// =====================================================
+// =====================================================
+//
+// Business Operations Endpoints
+//
+// =====================================================
+// =====================================================
+//
+// Statistics Endpoints
+//
+// =====================================================
+// =====================================================
+//
+// Private Helper Methods
+// =====================================================
 
 }
