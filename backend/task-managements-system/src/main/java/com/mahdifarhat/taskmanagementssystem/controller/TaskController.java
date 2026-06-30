@@ -106,6 +106,7 @@ public class TaskController {
             taskPage = taskService.getTasksByTitle(title, pageable);
         }
         else  if(status != null) {
+            //Filter by status only
             taskPage = taskService.getTasksByCompletionStatus(status, pageable);
         }
         else {
@@ -128,7 +129,7 @@ public class TaskController {
         return taskService.getTasksByCompletionStatus(status);
     }
 
-    @GetMapping("/page/status/{status}")
+    @GetMapping("/page/search-by-status/{status}")
     public ResponseEntity<Map<String, Object>> getTasksByCompletionStatus(@PathVariable boolean status,
                                                                           @RequestParam(defaultValue = "0") int page,
                                                                           @RequestParam(defaultValue = "10") int size,
@@ -147,11 +148,6 @@ public class TaskController {
         response.put("hasNext", tasksCompleted.hasNext());
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
-
-//    @GetMapping("/status/{status}")
-//    public List<TaskResponseDTO> getTasksByStatus(@PathVariable boolean status) {
-//        return taskService.getTasksByStatus(status);
-//    }
 
     @GetMapping("/search-by-title")
     public List<TaskResponseDTO> getTasksByTitle(@RequestParam String title) {

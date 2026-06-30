@@ -25,7 +25,7 @@ public class TaskService {
     private final TaskMapper taskMapper;
 
     //----------------------------------------------------------------------------------------
-    //Constructor
+    //Constructor Injection
 
     public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
@@ -37,7 +37,7 @@ public class TaskService {
 
     public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
         Page<Task> pages = taskRepository.findAll(pageable);
-        return pages.map(taskMapper::toTaskResponseDTO);
+        return mapToTaskResponseDTOPage(pages, pageable);
     }
 
     public List<TaskResponseDTO> getAllTasks(){
@@ -74,43 +74,48 @@ public class TaskService {
     }
 
     //----------------------------------------------------------------------------------------
+    //Business Operations
+
+
+
+    //----------------------------------------------------------------------------------------
     //Search & Filtering
 
     public Page<TaskResponseDTO> getTasksByCompletionStatus(boolean status, Pageable pageable) {
         final Page<Task> completedTasks = taskRepository.findByStatus(status, pageable);
-        return completedTasks.map(taskMapper::toTaskResponseDTO);
+        return mapToTaskResponseDTOPage(completedTasks, pageable);
     }
 
     public List<TaskResponseDTO> getTasksByCompletionStatus(boolean status) {
         final List<Task> completedTasks = taskRepository.findByStatus(status);
-        return mapToTaskResponseDTO(completedTasks);
+        return mapToTaskResponseDTOList(completedTasks);
     }
 
     public Page<TaskResponseDTO> getTasksByTitle(String title, Pageable pageable) {
-        final Page<Task> tasksByTitle = taskRepository.findByTitleContainingIgnoreCase(title, pageable);
-        return tasksByTitle.map(taskMapper::toTaskResponseDTO);
+        final Page<Task> tasksByTitle = taskRepository.findByTitleIgnoreCaseContaining(title, pageable);
+        return mapToTaskResponseDTOPage(tasksByTitle, pageable);
     }
 
     public List<TaskResponseDTO> getTasksByTitle(String title) {
-        return mapToTaskResponseDTO(taskRepository.findByTitleContainingIgnoreCase(title));
-    }
-
-    public List<TaskResponseDTO> getTasksByStatus(boolean status) {
-        return mapToTaskResponseDTO(taskRepository.findTasksByCompletionStatus(status));
+        return mapToTaskResponseDTOList(taskRepository.findByTitleContainingIgnoreCase(title));
     }
 
     public Page<TaskResponseDTO> searchTasksByTitleAndStatus(String title,Boolean status, Pageable pageable) {
-        final Page<Task> tasksByTitleAndStatus = taskRepository.findByTitleAndStatus(title, status, pageable);
-        return tasksByTitleAndStatus.map(taskMapper::toTaskResponseDTO);
+        final Page<Task> tasksByTitleAndStatus = taskRepository.findByTitleIgnoreCaseContainingAndStatus(title, status, pageable);
+        return mapToTaskResponseDTOPage(tasksByTitleAndStatus,  pageable);
     }
 
     //----------------------------------------------------------------------------------------
     //Private Helpers
 
-    private List<TaskResponseDTO> mapToTaskResponseDTO(List<Task> tasks){
+    private List<TaskResponseDTO> mapToTaskResponseDTOList(List<Task> tasks){
         return tasks.stream()
                 .map(taskMapper::toTaskResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    private Page<TaskResponseDTO> mapToTaskResponseDTOPage(Page<Task> tasks, Pageable pageable){
+        return tasks.map(taskMapper::toTaskResponseDTO);
     }
 
 //  Dependencies

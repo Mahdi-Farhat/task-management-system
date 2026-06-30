@@ -21,14 +21,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     //New paginated methods
     Page<Task> findByStatus(boolean status, Pageable pageable);
 
-    Page<Task> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+    Page<Task> findByTitleIgnoreCaseContaining(String title, Pageable pageable);
 
     //JPQL Query
     @Query("Select t from Task t where t.status = :status")
-    List<Task> findTasksByCompletionStatus(@Param("status") boolean status);
-
-    @Query("Select t from Task t where t.status = :status")
     Page<Task> findTasksByCompletionStatus(@Param("status") boolean status, Pageable pageable);
 
-    Page<Task> findByTitleAndStatus(String title,Boolean status, Pageable pageable);
+    Page<Task> findByTitleIgnoreCaseContainingAndStatus(String title,Boolean status, Pageable pageable);
 }
