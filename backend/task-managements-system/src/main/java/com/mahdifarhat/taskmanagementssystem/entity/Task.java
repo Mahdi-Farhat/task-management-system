@@ -33,6 +33,9 @@ public class Task {
     @Column(nullable = false, updatable = false)
     private OffsetDateTime due_date;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Role role;
     private Long project_id;
     private Long assigned_user_id;
 

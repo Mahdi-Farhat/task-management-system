@@ -9,6 +9,7 @@ public record UpdateTaskDTO(
         String title,
         @Size(min =3, max = 500, message = "Description is mandatory")
         String description,
-        Boolean status
+        Boolean status,
+        Long roleId
 ) {
 }

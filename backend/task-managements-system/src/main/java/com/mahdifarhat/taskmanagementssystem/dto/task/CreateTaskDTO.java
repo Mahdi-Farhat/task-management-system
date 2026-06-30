@@ -9,7 +9,9 @@ public record CreateTaskDTO(
         String title,
         @Size(min = 3, max = 100, message = "Description should be between 3 and 100 characters.")
         String description,
-        Boolean status
+        Boolean status,
+        Long roleId
+
 ) {
     
 }
